@@ -16,8 +16,8 @@ Usage:
     -fa fa_files.tsv \\
     -cen active_hor_cdr.bed \\
     -o call_FAS_output \\
-    -bin 2000 \\
-    -s 5 \\
+    -bin 5000 \\
+    -s 10 \\
     -exp 0 \\
     -out_CDR_cutoff 0.10 \\
     -in_CDR_cutoff 0.05 \\
@@ -29,8 +29,8 @@ Required:
 
 Optional:
   -o       output directory [default: call_FAS_output]
-  -bin     bin size [default: 2000]
-  -s       smoothing window size [default: 5]
+  -bin     bin size [default: 5000]
+  -s       smoothing window size [default: 10]
   -exp     symmetric expansion size for CDR only [default: 0]
   -out_CDR_cutoff  winsorization fraction outside CDR [default: 0.10]
   -in_CDR_cutoff   winsorization fraction inside CDR [default: 0.05]
