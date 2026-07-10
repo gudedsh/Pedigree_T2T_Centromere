@@ -17,9 +17,8 @@ Usage:
     -cen active_hor_cdr.bed \\
     -ref reference.fa \\
     -o output_dir \\
-    -bin 1000 \\
+    -bin 5000 \\
     -t 8 \\
-    -q 1 \\
     -s 10 \\
     -exp 0 \\
     -out_CDR_cutoff 0.10 \\
@@ -32,9 +31,8 @@ Required:
 
 Optional:
   -o      output directory [default: ./output_results]
-  -bin    bin size [default: 1000]
+  -bin    bin size [default: 5000]
   -t      threads [default: SLURM_CPUS_PER_TASK or 8]
-  -q      minimum MAPQ [default: 1]
   -s      smoothing window size [default: 10]
   -exp    symmetric expansion size applied to both CDR boundaries [default: 0]
   -out_CDR_cutoff  winsorization fraction for background outside CDR [default: 0.10]
@@ -47,10 +45,9 @@ EOF
 dml_file=""
 activehor=""
 ref_fa=""
-outdir="call_FAS_output"
-winsize=1000
+outdir="output_results"
+winsize=5000
 threads=8
-mapq=1
 smooth_window=10
 expansion_size=0
 out_CDR_cutoff=0.10
@@ -65,7 +62,6 @@ while [[ $# -gt 0 ]]; do
     -o) outdir="$2"; shift 2 ;;
     -bin) winsize="$2"; shift 2 ;;
     -t) threads="$2"; shift 2 ;;
-    -q) mapq="$2"; shift 2 ;;
     -s) smooth_window="$2"; shift 2 ;;
     -exp) expansion_size="$2"; shift 2 ;;
     -out_CDR_cutoff) out_CDR_cutoff="$2"; shift 2 ;;
@@ -111,7 +107,7 @@ step0_check_parameters() {
   cache_bam_dir="${outdir}/cached_activeHOR_bam"
   mkdir -p "$workdir" "$cache_bam_dir" "${workdir}/sort_tmp"
 
-  log="${outdir}/call_FAS.log"
+  log="${outdir}/call_CARS.log"
 
   if [[ -n "${SLURM_MEM_PER_NODE:-}" ]]; then
     mem=$(( SLURM_MEM_PER_NODE / 1024 ))
@@ -135,7 +131,6 @@ step0_check_parameters() {
     echo "Threads: $threads"
     echo "Memory: ${mem}G"
     echo "Sort memory per thread: ${SORT_MEM}G"
-    echo "MAPQ cutoff: $mapq"
   } > "$log"
 }
 
@@ -271,7 +266,7 @@ step2_extract_activeHOR_bam() {
   bam="$2"
 
   bam=$(realpath "$bam")
-  active_bam="${cache_bam_dir}/${sample}.activeHOR_MAPQ${mapq}.bam"
+  active_bam="${cache_bam_dir}/${sample}.activeHOR.bam"
 
   echo -e "\n[$(date)] [step2] Extract active HOR BAM: ${sample}" | tee -a "$log"
 
@@ -280,7 +275,7 @@ step2_extract_activeHOR_bam() {
     echo "  cached active HOR BAM exists, skipping:" | tee -a "$log"
     echo "    $active_bam" | tee -a "$log"
   else
-    samtools view -@ "$threads" -b -q "$mapq" -L "$active_bed" "$bam" > "$active_bam"
+    samtools view -@ "$threads" -b -L "$active_bed" "$bam" > "$active_bam"
     samtools index -@ "$threads" "$active_bam"
     echo "  active HOR BAM written: $active_bam" | tee -a "$log"
   fi
@@ -472,7 +467,7 @@ END{
 
 
 step4_combine_results () {
-  combined="${outdir}/FAS_bin_summary.tsv"
+  combined="${outdir}/CARS_MARS_bin_summary.tsv"
 
   first=1
   for f in "$workdir"/*.step10_FAS_bin_summary.tsv; do
@@ -485,7 +480,7 @@ step4_combine_results () {
     fi
   done
 
-  echo -e "\nCombined FAS bin summary written to: $combined" | tee -a "$log"
+  echo -e "\nCombined CARS MARS bin summary written to: $combined" | tee -a "$log"
 }
 
 
@@ -495,9 +490,9 @@ step5_call_CARS_MARS_r () {
 
   echo -e "\n[$(date)] [step5] Calling CARS and MARS in R..." | tee -a "$log"
 
-  combined="${outdir}/FAS_bin_summary.tsv"
-  cars_mars_out="${outdir}/CARS_MARS_results_from_CENPA_DiMeLo.tsv"
-  cars_mars_plotdir="${outdir}/CARS_MARS_QC_plots"
+  combined="${outdir}/CARS_MARS_bin_summary.tsv"
+  cars_mars_out="${outdir}/call_CARS_results_from_CENPA_DiMeLo.tsv"
+  cars_mars_plotdir="${outdir}/call_CARS_QC_plots"
 
   rcode="$(realpath ./r_code/call_cars_mars.r)"
 
@@ -520,7 +515,6 @@ step5_call_CARS_MARS_r () {
     --smooth_k "$smooth_window" \
     --bin_size "$winsize" \
     --cars_col "m6A_per_AT" \
-    --mars_col "mCG_per_CpG" \
     --out_CDR_cutoff "$out_CDR_cutoff" \
     --in_CDR_cutoff "$in_CDR_cutoff" \
     --cdr_expansion "$expansion_size" \
@@ -531,7 +525,6 @@ step5_call_CARS_MARS_r () {
 
 
 
-## main
 step0_check_parameters
 
 step1_prepare_genome_bins
@@ -545,7 +538,7 @@ done < "$dml_file"
 while read -r sample bam; do
   [[ -z "${sample:-}" ]] && continue
   [[ "$sample" =~ ^# ]] && continue
-  active_bam="${cache_bam_dir}/${sample}.activeHOR_MAPQ${mapq}.bam"
+  active_bam="${cache_bam_dir}/${sample}.activeHOR.bam"
   step3_process_one_sample "$sample" "$active_bam"
 done < "$dml_file"
 
