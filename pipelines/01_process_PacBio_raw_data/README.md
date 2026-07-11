@@ -43,13 +43,10 @@ output_dir/
 
 
 
-## Usage
-
-```bash
-# uasge
+# Check help information
 bash run_process_PacBio_raw_data_pipeline_V1.0.sh -h
 
-# example
+# Full workflow execution example
 bash run_process_PacBio_raw_data_pipeline_V1.0.sh \
   --input-bam /path/to/raw_input.bam \
   --sample PAN010 \
