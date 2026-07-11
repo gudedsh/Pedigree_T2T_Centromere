@@ -43,11 +43,11 @@ output_dir/
 
 ```
 
-
-# Check help information
+# Usage
+## Check help information
 bash run_process_PacBio_raw_data_pipeline_V1.0.sh -h
 
-# Full workflow execution example
+## Full workflow execution example
 bash run_process_PacBio_raw_data_pipeline_V1.0.sh \
   --input-bam /path/to/raw_input.bam \
   --sample PAN010 \
@@ -57,5 +57,15 @@ bash run_process_PacBio_raw_data_pipeline_V1.0.sh \
   --threads 16 \
   --min-len 1000 \
   --mg-cutoff 0
+
+Argument,Required/Optional,Default,Description
+--input-bam,Required,-,Path to the raw PacBio input BAM file (containing kinetics).
+--sample,Required,-,"Name/ID of the sample (e.g., pedigree line ID)."
+--mat-ref,Required,-,Path to the maternal haplotype FASTA reference.
+--pat-ref,Required,-,Path to the paternal haplotype FASTA reference.
+--outdir,Required,-,Output directory where the subfolders will be created.
+--threads,Optional,8,Number of CPU cores to allocate for parallel processing.
+--min-len,Optional,1000,Minimum read length threshold considered for phasing.
+--mg-cutoff,Optional,0,Score difference cutoff for strict haplotype phasing.
 
 
