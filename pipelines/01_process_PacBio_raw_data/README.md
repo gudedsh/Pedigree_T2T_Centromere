@@ -42,25 +42,22 @@ output_dir/
         └── [sample]_Pat.sorted.bam  <- Final Paternal Phased & Called Methylation
 
 
-```Usage
+
+## Usage
+
+```bash
+# uasge
 bash run_process_PacBio_raw_data_pipeline_V1.0.sh -h
-Usage:
-  bash run_fiber_dimelo_pipeline.sh \
-    --input-bam input.bam \
-    --sample sample_name \
-    --mat-ref Mat.fa \
-    --pat-ref Pat.fa \
-    --outdir output_dir \
-    --threads 8
 
-Required:
-  --input-bam   raw PacBio BAM
-  --sample      sample name
-  --mat-ref     maternal haplotype fasta
-  --pat-ref     paternal haplotype fasta
-  --outdir      output directory
+# example
+bash run_process_PacBio_raw_data_pipeline_V1.0.sh \
+  --input-bam /path/to/raw_input.bam \
+  --sample PAN010 \
+  --mat-ref /path/to/maternal_reference.fa \
+  --pat-ref /path/to/paternal_reference.fa \
+  --outdir /path/to/output_directory \
+  --threads 16 \
+  --min-len 1000 \
+  --mg-cutoff 0
 
-Optional:
-  --threads     threads [default: 8]
-  --min-len     minimum read length for phasing [default: 1000]
-  --mg-cutoff   mg difference cutoff [default: 0]
+
