@@ -19,6 +19,8 @@ echo "Input BAM: $bam" | tee "$log"
 echo "Threads: $threads" | tee -a "$log"
 
 echo "[$(date)] Running ft predict-m6a..." | tee -a "$log"
+
+sk() {
 ft --version | tee -a "$log"
 
 ft predict-m6a \
@@ -27,10 +29,10 @@ ft predict-m6a \
   "$pred_bam" 2>&1 | tee -a "$log"
 
 samtools index -@ "$threads" "$pred_bam"
-
+}
 echo -e "read_id\tread_len\tn_m6a\tm6a_per_kb\thas_m6a" > "$per_read"
 
-samtools view -@ "$threads" -F 2304 "$pred_bam" | \
+samtools view -@ "$threads" "$pred_bam" | \
 awk 'BEGIN{OFS="\t"}
 {
     read_id=$1
@@ -52,7 +54,7 @@ awk 'BEGIN{OFS="\t"}
     }
 
     if(read_len > 0){
-        print read_id, read_len, n_m6a, n_m6a/read_len*1000, n_m6a>0 ? 1 : 0
+          has_m6a = (n_m6a > 0) ? 1 : 0 ; print read_id, read_len, n_m6a, n_m6a/read_len*1000, has_m6a 
     }
 }' >> "$per_read"
 
