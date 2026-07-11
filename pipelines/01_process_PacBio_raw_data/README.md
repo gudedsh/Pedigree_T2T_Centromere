@@ -41,6 +41,8 @@ output_dir/
     └── Pat/
         └── [sample]_Pat.sorted.bam  <- Final Paternal Phased & Called Methylation
 
+---
+
 
 
 # Check help information
