@@ -1,6 +1,6 @@
-# Pedigree_T2T_Centromere
+# Process PacBio raw data
 
-This repository contains the integrated bioinformatics pipeline for processing raw PacBio long-read sequencing data, specifically optimized for **Fiber-seq** and **DiMeLo-seq** datasets. The workflow features haplotype-aware alignment, competitive read phasing, and single-molecule methylation calling, making it highly suitable for resolving complex genomic regions such as **centromere-to-arm boundaries** in T2T (Telomere-to-Telomere) assemblies across pedigree lineages.
+This folder contains the bioinformatic pipelines for processing raw PacBio long-read sequencing data, including for **Fiber-seq** and **DiMeLo-seq** datasets. The workflow features haplotype-aware alignment, competitive read phasing, and methylation calling.
 
 ---
 
@@ -9,13 +9,13 @@ This repository contains the integrated bioinformatics pipeline for processing r
 The main wrapper script `run_process_PacBio_raw_data_pipeline_V1.0.sh` automates the execution of four sequential modules:
 
 1. **Step 1: Predict m6A and QC** (`01_predict_m6a_qc.sh`)
-   * Takes raw PacBio BAM files to predict $m^6A$ kinetics and outputs intermediate BAM files with modification tags alongside quality control metrics.
+   * Takes raw PacBio BAM files to predict $m^6A$ and nucleosomes, outputs intermediate BAM files with modification tags alongside quality control metrics. PacBio WGS without Fiber-seq or DiMeLo-seq modification can skip step 1.
 2. **Step 2: Align Unphased Reads to Haplotypes** (`02_align_unphased_to_haps.sh`)
-   * Coordinates parallel alignment of the unphased kinetic reads to both maternal (`Mat`) and paternal (`Pat`) reference genomes.
+   * Coordinates parallel alignment of the unphased reads to both maternal (`Mat`) and paternal (`Pat`) reference genomes.
 3. **Step 3: Extract Scores and Phase Reads** (`03_phase_reads.sh`)
-   * Extracts competitive alignment metrics and modification scores to phase individual long reads into distinct parental haplotype buckets based on user-defined thresholds.
+   * Extracts competitive alignment metrics and modification scores to phase individual long reads into distinct parental haplotype buckets.
 4. **Step 4: Realign Phased Reads and Call Methylation** (`04_realign_phased_call_meth.sh`)
-   * Performs a final, high-accuracy realignment of the partitioned maternal and paternal reads back to their respective native references and executes resolution-critical methylation calling.
+   * Performs a final, high-accuracy realignment of the partitioned maternal and paternal reads back to their respective native references and executes methylation calling.
 
 ---
 
@@ -54,7 +54,7 @@ bash run_process_PacBio_raw_data_pipeline_V1.0.sh \
   --mat-ref /path/to/maternal_reference.fa \
   --pat-ref /path/to/paternal_reference.fa \
   --outdir /path/to/output_directory \
-  --threads 16 \
+  --threads 8 \
   --min-len 1000 \
   --mg-cutoff 0
 
