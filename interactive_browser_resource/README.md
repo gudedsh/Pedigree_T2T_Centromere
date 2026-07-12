@@ -9,7 +9,7 @@ https://epigenomegateway.wustl.edu/
 
 ## Directory Contents
 
-* **`[Tutorial_for_T2T_WashU_browser_resource.pdf](Tutorial_for_T2T_WashU_browser_resource.pdf)`**: A step-by-step PDF manual guiding users through browser initialization and track sub-setting.
+* [Tutorial_for_T2T_WashU_browser_resource.pdf](Tutorial_for_T2T_WashU_browser_resource.pdf): A step-by-step PDF manual guiding users through browser initialization and track sub-setting.
 
 ---
 
