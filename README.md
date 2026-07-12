@@ -76,6 +76,15 @@ If you use this repository or associated datasets in your research, please cite:
 
 ---
 
+## License
+
+The source code in this repository is distributed under the MIT License.
+
+Genome assemblies and other datasets are distributed separately under the licenses specified in their respective repositories (e.g., Zenodo).
+
+---
+
+
 ## Contact
 
 **Shihua Dong**
