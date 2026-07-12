@@ -1,6 +1,6 @@
 # Module 03: Call CDR (Centromere Dip Region) Candidates
 
-This directory contains the pipeline for identifying **Centromere Dip Regions (CDRs)** from single-molecule long-read methylation datasets (such as Fiber-seq or DiMeLo-seq). The workflow integrates genome-wide methylation frequencies with active Higher-Order Repeats (HORs) boundaries, calculates localized methylation drops, and outputs high-resolution CDR candidate regions alongside quality control visualizations.
+This directory contains the pipeline for identifying **Centromere Dip Regions (CDRs)** candidates. The workflow integrates methylation frequencies with active Higher-Order Repeats (HORs), calculates localized methylation drops, and outputs CDR candidate regions alongside quality control visualizations.
 
 ---
 
@@ -12,9 +12,8 @@ The core wrapper script coordinates data preparation and executes the underlying
 2. **K-Smooth Trend Line Calculation**: Computes a moving average across chromosomes using `zoo::rollmean` to generate smooth trend lines exclusively for visualization.
 3. **Adaptive Thresholding (Haplotype/Sample Aware)**: 
    * Dynamically calculates the `median` methylation level across the provided active HOR target region.
-   * Defines a customized background drop cutoff based on a fraction of that median: 
-     $$\text{Cutoff} = \text{Median}_{\text{active\_hor}} \times \text{cutoff\_frac}$$
-   * Flags any windows where the localized methylation rate drops below $(\text{Median} - \text{Cutoff})$.
+   * Defines a customized background drop cutoff based on a fraction of median
+   * Flags any windows where the localized methylation rate drops below cutoff.
 4. **Window Merging & Clustering**: Chains continuous low-methylation bins together into single candidate blocks, tolerating internal gaps up to `--bin_gap` and filtering for clusters containing at least `--min_bins`.
 
 ---
