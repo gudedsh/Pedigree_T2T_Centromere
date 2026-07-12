@@ -1,6 +1,6 @@
 # Module 04: Call MARS (Methylation Area Score)
 
-This module implements **MARS (Methylation Area Score)**, a quantitative metric developed in our study to measure the magnitude of DNA hypomethylation of CDRs relative to active Higher-Order Repeat (HOR) domains.
+This module implements **MARS (Methylation Area Score)**, a quantitative metric developed in our study to measure the magnitude of DNA hypomethylation of CDR regions.
 
 Rather than relying solely on average methylation levels, MARS integrates both the **depth** and **genomic extent** of methylation depletion, providing a robust quantitative measurement of centromere methylation dynamics across different cell types and sequencing platforms.
 
@@ -26,22 +26,7 @@ Background methylation is estimated from regions outside the CDR after robust Wi
 
 ### 4. Calculate MARS
 
-For each genomic bin within the active HOR,
-
-$begin:math:display$
-\\Delta\_i \= M\_\{\\mathrm\{background\}\} \- M\_i
-$end:math:display$
-
-where
-
-- $begin:math:text$M\_i$end:math:text$ is the methylation level of the *i*-th genomic bin inside the active HOR.
-- $begin:math:text$M\_\{\\mathrm\{background\}\}$end:math:text$ is the robust background methylation estimate.
-
-The overall MARS is calculated as
-
-$begin:math:display$
-\\mathrm\{MARS\}\=\\sum\_\{i\\in \\mathrm\{HOR\}\}\\Delta\_i
-$end:math:display$
+For each CDR, by integrating both the magnitude and genomic extent of methylation reduction, MARS provides a quantitative measure of centromeric hypomethylation.
 
 The pipeline reports:
 
