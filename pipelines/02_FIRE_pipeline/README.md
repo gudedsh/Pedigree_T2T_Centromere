@@ -9,7 +9,7 @@ This directory contains the pipeline wrapper for running **FIRE (Fiber-seq Infer
 ## Dependencies
 
 Ensure the following tools and environment configurations are exported within your active cluster session:
-* **FIRE Pipeline ** (Snakemake workflow framework from https://fiberseq.github.io/fire/run.html)
+* **FIRE Pipeline** (Snakemake workflow from https://fiberseq.github.io/fire/run.html)
 * **Samtools** (v1.9 or later)
 
 ---
