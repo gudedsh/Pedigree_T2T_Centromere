@@ -1,48 +1,111 @@
 # Module 03: Call CDR (Centromere Dip Region) Candidates
 
-This directory contains the pipeline for identifying **Centromere Dip Regions (CDRs)** candidates. The workflow integrates methylation frequencies with active Higher-Order Repeats (HORs), calculates localized methylation drops, and outputs CDR candidate regions alongside quality control visualizations.
+This module identifies **Centromere Dip Regions (CDRs)**, localized hypomethylated domains within active Higher-Order Repeat (HOR) arrays.
+
+The pipeline accepts bgzip-compressed CpG methylation tracks together with active HOR annotations. It automatically extracts methylation records from active HOR regions, constructs binned methylation profiles, identifies candidate CDRs, performs quality control, and generates publication-ready visualizations.
 
 ---
 
-## Workflow Overview
+## Method Overview
 
-The core wrapper script coordinates data preparation and executes the underlying R tool `call_CDR_from_active_HOR.R` to process the data through four systematic stages:
+The workflow consists of four major steps.
 
-1. **Filtering by Depth**: Filters out genomic positions that fall below the user-defined sequencing coverage threshold (`--depth_cutoff`).
-2. **K-Smooth Trend Line Calculation**: Computes a moving average across chromosomes using `zoo::rollmean` to generate smooth trend lines exclusively for visualization.
-3. **Adaptive Thresholding (Haplotype/Sample Aware)**: 
-   * Dynamically calculates the `median` methylation level across the provided active HOR target region.
-   * Defines a customized background drop cutoff based on a fraction of median
-   * Flags any windows where the localized methylation rate drops below cutoff.
-4. **Window Merging & Clustering**: Chains continuous low-methylation bins together into single candidate blocks, tolerating internal gaps up to `--bin_gap` and filtering for clusters containing at least `--min_bins`.
+### 1. Extract active HOR methylation
+
+Using the input bgzip-compressed CpG methylation file together with active HOR annotations, the pipeline efficiently extracts methylation records overlapping each active HOR region and its flanking sequences using **tabix**.
+
+### 2. Construct methylation profiles
+
+Extracted CpG methylation records are aggregated into fixed genomic bins (user-defined, default: **1 kb**) to generate continuous methylation profiles across each active HOR region.
+
+### 3. Identify candidate CDRs
+
+For each active HOR, the pipeline estimates the representative methylation level and identifies genomic bins exhibiting substantial methylation depletion based on a user-defined threshold.
+
+### 4. Merge adjacent bins
+
+Neighboring hypomethylated bins are merged into continuous candidate CDRs according to the maximum allowed gap size and the minimum number of consecutive bins.
+
+The pipeline reports:
+
+- Candidate CDR coordinates
+- Binned methylation profiles
+- Smoothed methylation profiles
+- QC figures
+
+
+---
+
+## Workflow
+
+```text
+bgzip methylation
+      + active HOR annotation
+                │
+                ▼
+     Low-depth filtering
+                │
+                ▼
+    Methylation profile
+                │
+                ▼
+   Candidate CDR detection
+                │
+                ▼
+      Adjacent bin merging
+                │
+                ▼
+     Candidate CDRs + QC
+```
 
 ---
 
 ## Dependencies
 
-Ensure the following R packages are installed in your active environment:
-* `data.table`
-* `ggplot2`
-* `scales`
-* `optparse`
-* `zoo`
+### Required R packages
+
+- data.table
+- ggplot2
+- scales
+- optparse
+- zoo
 
 ---
 
 ## Usage
 
-### Command-Line Execution
-
-Run the calling module directly from your terminal by executing the R tool with explicit path arguments:
-
 ```bash
 Rscript call_CDR_from_active_HOR.R \
-  --sample PAN010_Mat \
-  --meth_file /path/to/binned_methylation.tsv \
-  --active_hor /path/to/active_hor_regions.bed \
-  --out_dir /path/to/output_directory \
-  --bin_gap 50000 \
-  --min_bins 5 \
-  --cutoff_frac 0.15 \
-  --smooth_k 10 \
-  --depth_cutoff 10
+    --sample PAN010_Mat \
+    --meth_file binned_methylation.tsv \
+    --active_hor active_hor_regions.bed \
+    --out_dir output_directory \
+    --bin_gap 50000 \
+    --min_bins 5 \
+    --cutoff_frac 0.15 \
+    --smooth_k 10 \
+    --depth_cutoff 10
+```
+
+### Optional parameters
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `--bin_gap` | 50000 | Maximum gap allowed when merging adjacent candidate bins |
+| `--min_bins` | 5 | Minimum number of consecutive bins required to define a CDR |
+| `--cutoff_frac` | 0.15 | Fraction of the active HOR median methylation used to identify candidate CDRs |
+| `--smooth_k` | 10 | Smoothing window size for visualization |
+| `--depth_cutoff` | 10 | Minimum sequencing depth per genomic bin |
+
+---
+
+## Output
+
+For each sample, the pipeline generates:
+
+- Candidate CDR coordinates (BED)
+- Binned methylation profiles
+- Smoothed methylation profiles
+- QC figures (PDF)
+
+---
