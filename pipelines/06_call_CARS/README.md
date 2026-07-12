@@ -1,50 +1,134 @@
-# Module 06: Call CARS (CENP-A Associated Region States)
+# Module 06: Call CARS (CENP-A Area Score)
 
-This directory contains the computational pipeline for calculating the **CARS (CENP-A Associated Region States)** score and tracking CENP-A deposition enrichment. Utilizing long-read **CENP-A DiMeLo-seq** single-molecule mapping data, this workflow extracts localized modification signals (e.g., $m^6A$ or $m^6A/\text{AT}$ ratio), performs standardized window smoothing, implements robust dual-zone outlier trimming, and quantifies integrated footprint enrichment across **centromere-to-arm boundaries** and active Higher-Order Repeats (HORs).
+This module implements **CARS (CENP-A Area Score)**, a quantitative metric developed in our study to measure CENP-A enrichment within centromere dip regions (CDRs).
+
+Rather than relying solely on average CENP-A signal, CARS integrates both the **magnitude** and **genomic extent** of CENP-A enrichment, providing a robust quantitative measurement of centromeric CENP-A occupancy across different cell types and experimental conditions.
+
+The pipeline accepts long-read CENP-A DiMeLo-seq BAM files together with CDR and active HOR annotations. It automatically extracts active HOR regions, quantifies CENP-A signals, calculates CARS scores, performs quality control, and generates publication-ready visualizations.
+
+In addition to CARS calculation, the pipeline exports paired single-molecule CENP-A and CpG methylation measurements for downstream integrative analyses.
 
 ---
 
-## Workflow & Algorithmic Core
+## Method Overview
 
-The main pipeline wrapper (`call_CARS_pipeline_V1.0.sh`) orchestrates parallel single-molecule feature extractions via Fibertools (`ft extract`), channels raw alignments into standard genomic window blocks via `bedtools intersect`, and routes the synchronized matrix into the core R algorithm (`call_cars_mars.r`) which executes across four modular phases:
+The workflow consists of five major steps.
 
-1. **Signal Conditioning via Rolling Average**: Evaluates flanking macro-epigenetic trends over chromosome sequences using `zoo::rollmean` with a moving step parameter controlled by `--smooth_k` to generate a robust baseline.
-2. **Dual-Zone Asymmetric Winsorization**: Symmetrically compresses high-frequency coverage peaks or non-specific hyper-methylation outliers using independent sample quantiles to stabilize regional reference lines:
-   * **Flanking Background Bins (Outside CDR)**: Outliers are capped using the `--out_CDR_cutoff` fraction (Default: top/bottom 10%).
-   * **Target Core Bins (Inside CDR)**: Outliers are capped using the `--in_CDR_cutoff` fraction (Default: top/bottom 5%).
-3. **CARS Score Formulations**: Establishes the robust non-CDR baseline background mean ($\text{Background}$) from the trimmed flanking array, and integrates the relative enrichment delta scaled directly against the physical nucleotide width ($\text{Bin\_Width}$) of each target window:
-   $$\text{Delta} = \frac{\text{Signal}_{\text{smooth}} - \text{Background}}{\text{Background} + 10^{-6}}$$
-   $$\text{CARS} = \sum (\text{Delta}_{\text{cdr\_bin}} \times \text{Bin\_Width})$$
-   The pipeline records absolute integrated $\text{CARS}$ scores, log-scaled scaling profiles ($\text{sign(CARS)} \times \log_2(\vert{}\text{CARS}\vert{} + 1)$), and un-winsorized raw metrics for comprehensive downstream reporting.
+### 1. Extract active HOR regions
+
+Reads overlapping active HOR regions and their flanking sequences are extracted from aligned DiMeLo-seq BAM files.
+
+### 2. Quantify CENP-A signals
+
+Single-molecule CENP-A signals are extracted using **Fibertools (`ft extract`)**. Signal metrics (e.g., `m6A_per_AT`) are summarized within fixed genomic bins across each active HOR region.
+
+### 3. Extract single-molecule CpG methylation
+
+In addition to CENP-A signals, the pipeline extracts CpG methylation levels for every genomic bin from each individual read. These single-molecule methylation profiles are generated simultaneously with CENP-A quantification, enabling downstream integrative analyses of CpG methylation and CENP-A occupancy at single-molecule resolution.
+
+### 4. Estimate background signal
+
+Background CENP-A signal is estimated from regions outside the CDR after robust Winsorization, reducing the influence of local outliers and sequencing coverage fluctuations.
+
+### 5. Calculate CARS
+
+For each CDR, the pipeline estimates a robust background CENP-A signal from the surrounding non-CDR regions and quantifies the cumulative CENP-A enrichment across the entire CDR relative to this background.
+
+The pipeline reports:
+
+- Raw CARS
+- log₂-transformed CARS
+- Background CENP-A signal
+- CDR CENP-A signal
+- CENP-A enrichment
+- QC figures
+
+---
+
+## Workflow
+
+```text
+DiMeLo-seq BAM
+      + active HOR annotation
+                │
+                ▼
+      Extract active HOR reads
+                │
+                ▼
+    ft extract (CENP-A signals)
+                │
+                ├──────────────► Single-read CpG methylation
+                │                     │
+                │                     ▼
+                │         Single-molecule CENP-A /
+                │         methylation analyses
+                │
+                ▼
+      Fixed-bin CENP-A profile
+                │
+                ▼
+ Background signal estimation
+      (Robust Winsorization)
+                │
+                ▼
+         CARS calculation
+                │
+                ▼
+      QC plots & summary tables
+```
 
 ---
 
 ## Dependencies
 
-Ensure the following infrastructure tools and R statistical packages are active within your cluster node environment:
-* **Fibertools-rs** (`ft` binary for single-molecule long-read modification extraction)
-* **Samtools / Bedtools** (Coordinate sorting, selective interval partitioning, and grouping)
-* **R Environment** (>= 4.0) with required libraries:
-  * `data.table` (High-efficiency stream matrix reading and calculation)
-  * `zoo` (Infrastructure rolling computations)
-  * `ggplot2`, `scales`, & `patchwork` (Aesthetic vector-grade composite layout rendering)
+### External software
+
+- Fibertools-rs
+- Samtools
+- Bedtools
+- R (≥4.0)
+
+### Required R packages
+
+- data.table
+- ggplot2
+- zoo
+- patchwork
+- scales
 
 ---
 
 ## Usage
 
-### Command-Line Execution
-
-Run the complete pipeline directly by invoking the master wrapper to automate parsing, overlap-splitting, and mathematical scoring:
-
 ```bash
 bash call_CARS_pipeline_V1.0.sh \
-  -dml /path/to/dimelo_bam_manifest.tsv \
-  -cen /path/to/active_hor_cdr.bed \
-  -o /path/to/output_directory \
-  --bin_size 5000 \
-  --smooth_k 10 \
-  --cars_col m6A_per_AT \
-  --cdr_expansion 0 \
-  --out_CDR_cutoff 0.10 \
-  --in_CDR_cutoff 0.05
+    -dml dimelo_manifest.tsv \
+    -cen active_hor_cdr.bed \
+    -o output_directory
+```
+
+### Optional parameters
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `--bin_size` | 5000 | Bin size (bp) |
+| `--smooth_k` | 10 | Smoothing window size |
+| `--cars_col` | `m6A_per_AT` | Signal used for CARS calculation |
+| `--cdr_expansion` | 0 | CDR expansion size (bp) |
+| `--out_CDR_cutoff` | 0.10 | Winsorization cutoff outside the CDR |
+| `--in_CDR_cutoff` | 0.05 | Winsorization cutoff inside the CDR |
+
+---
+
+## Output
+
+For each sample, the pipeline generates:
+
+- Processed CENP-A signal profiles
+- Single-molecule CpG methylation profiles
+- CDR CENP-A enrichment profiles
+- Background CENP-A estimates
+- CARS summary tables
+- QC figures (PDF)
+
+---
