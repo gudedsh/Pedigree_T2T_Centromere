@@ -1,55 +1,143 @@
-# Module 07: Call De Novo / Somatic Mutation Pipeline
+# Module 07: Call De Novo / Somatic Mutations
 
-This directory contains the complete computational workflow for identifying high-confidence line-specific de novo or somatic mutations using multi-platform variant calling architectures on long-read PacBio datasets. To achieve maximum baseline specificity and suppress complex structural alignment artifacts, this module integrates parallel executions of **Google DeepVariant** and **GATK4 Mutect2**, applies multi-parameter quality metrics filtering, and intersects the callsets to yield high-confidence consensus variants.
+This module implements a consensus variant-calling pipeline for identifying high-confidence **de novo** and **somatic mutations** from long-read PacBio HiFi sequencing data.
 
----
+To maximize specificity while minimizing false-positive calls arising from sequencing or alignment artifacts, the pipeline combines two complementary variant callers (**DeepVariant** and **GATK Mutect2**), applies stringent quality filtering, and retains only consensus variants supported by both methods.
 
-## Workflow Overview
-
-The operational architecture inside this folder is distributed across three consecutive procedural stages:
-
-
-### Stage 1: Variant Calling
-* **`run_deepvariant.sh`**: Dispatches native multi-sharded variant calling leveraging DeepVariant's `PACBIO` neural networks to capture kinetic-aware variants.
-* **`run_gatk_mutect2.sh`**: Executes traditional statistical paired somatic variant calling via GATK4 Mutect2, automatically extracting Tumor/Normal `@RG SM` tokens to screen out matching background variations.
-
-### Stage 2: Independent Post-Filtering & Artifact Exclusions
-* **`run_DV_vcf_filter.sh`**: Filters DeepVariant outputs based on strict genotype quality, allelic coverage boundaries ($10 \le \text{DP} \le 100$), and VAF limits. It strips variants overlapping low-quality Flagger zones, NucFreq anomalies, and dense Tandem Repeats (TRF).
-* **`run_mutect2_vcf_filter.sh`**: Performs multi-sample GATK sorting and checks somatic indicators (`TLOD >= 6`, `NLOD >= 2`). It applies math filtering to mandate homozygous wild-type backgrounds in Normal controls while validating high-frequency somatic leakage ($> 20\%$) in Tumor tracks before running identical repeat masks exclusions.
-
-### Stage 3: Callset Intersection & Functional Annotation
-* **`intersect_dv_gatk_variants.sh`**: Intersects the clean BED coordinates from both calling workflows. Variants verified by both architectures are retained as the final consensus dataset, which is annotated across exons, promoters, centromeres, and segmental duplications (`biser`) to update `summary_final_overlap.txt`.
+The final variant set is further annotated with genomic features, including genes, promoters, centromeres, tandem repeats, and segmental duplications, facilitating downstream analyses of mutation distribution across genomic contexts.
 
 ---
 
-## Prerequisites & Dependencies
+## Method Overview
 
-Ensure the following genomic toolsets are loaded in your local HPC system environment:
-* **DeepVariant** (Native execution environment)
-* **GATK4 Suite**
-* **Bcftools**
-* **Bedtools / Samtools**
+The workflow consists of three major steps.
+
+### 1. Variant calling
+
+Candidate variants are independently identified using two complementary approaches:
+
+- **DeepVariant** for high-accuracy germline variant calling on PacBio HiFi reads.
+- **GATK Mutect2** for paired somatic variant calling using matched normal samples.
+
+Running both callers improves sensitivity while allowing cross-validation of candidate mutations.
+
+### 2. Quality filtering
+
+Variant calls from each caller are independently filtered using stringent quality criteria, including sequencing depth, genotype quality, variant allele frequency, and caller-specific confidence metrics.
+
+To reduce false positives, variants overlapping low-confidence genomic regions (e.g., tandem repeats, low-quality assembly regions, and other predefined genomic masks) are removed.
+
+### 3. Consensus variant identification
+
+Filtered DeepVariant and Mutect2 callsets are intersected to retain only variants supported by both methods, producing a high-confidence consensus mutation set.
+
+The final variants are annotated with genomic features, including:
+
+- Genes
+- Promoters
+- Centromeres
+- Segmental duplications (BISER)
+- Other user-defined genomic annotations
 
 ---
 
-## Usage Guide
+## Workflow
 
-### Run DeepVariant Callset Generation
-bash run_deepvariant.sh --bam tumor.bam --ref reference.fa --outdir ./dv_raw --threads 16
+```text
+PacBio HiFi BAM
+        │
+        ├──────────────► DeepVariant
+        │
+        └──────────────► GATK Mutect2
+                 │
+                 ▼
+      Independent quality filtering
+                 │
+                 ▼
+      Consensus variant intersection
+                 │
+                 ▼
+       Functional annotation
+                 │
+                 ▼
+ High-confidence de novo / somatic variants
+```
 
-### Run GATK Mutect2 Paired Calling
-bash run_gatk_mutect2.sh --tumor-bam tumor.bam --normal-bam matched_pbmc.bam --ref reference.fa --outdir ./gatk_raw --threads 16
+---
 
-### Filter DeepVariant Outputs
-bash run_DV_vcf_filter.sh --vcf ./dv_raw/sample.vcf.gz --anno-dir /path/to/annotations --outdir ./dv_filtered
+## Dependencies
 
-### Filter GATK Mutect2 Outputs
-bash run_mutect2_vcf_filter.sh --vcf ./gatk_raw/sample.vcf.gz --anno-dir /path/to/annotations --outdir ./gatk_filtered
-### Final Cross-Validation Intersect
+### External software
+
+- DeepVariant
+- GATK4
+- BCFtools
+- Bedtools
+- Samtools
+
+---
+
+## Usage
+
+### 1. Run DeepVariant
+
+```bash
+bash run_deepvariant.sh \
+    --bam tumor.bam \
+    --ref reference.fa \
+    --outdir dv_raw \
+    --threads 16
+```
+
+### 2. Run Mutect2
+
+```bash
+bash run_gatk_mutect2.sh \
+    --tumor-bam tumor.bam \
+    --normal-bam matched_pbmc.bam \
+    --ref reference.fa \
+    --outdir gatk_raw \
+    --threads 16
+```
+
+### 3. Filter DeepVariant calls
+
+```bash
+bash run_DV_vcf_filter.sh \
+    --vcf dv_raw/sample.vcf.gz \
+    --anno-dir annotation_directory \
+    --outdir dv_filtered
+```
+
+### 4. Filter Mutect2 calls
+
+```bash
+bash run_mutect2_vcf_filter.sh \
+    --vcf gatk_raw/sample.vcf.gz \
+    --anno-dir annotation_directory \
+    --outdir gatk_filtered
+```
+
+### 5. Generate consensus variants
+
+```bash
 bash intersect_dv_gatk_variants.sh \
-  --dv-bed ./dv_filtered/sample_clean_dv.bed \
-  --gatk-bed ./gatk_filtered/sample_clean_gatk.bed \
-  --anno-dir /path/to/annotations \
-  --outdir ./final_consensus
+    --dv-bed dv_filtered/sample_clean_dv.bed \
+    --gatk-bed gatk_filtered/sample_clean_gatk.bed \
+    --anno-dir annotation_directory \
+    --outdir final_consensus
+```
 
+---
 
+## Output
+
+For each sample, the pipeline generates:
+
+- Filtered DeepVariant callset
+- Filtered Mutect2 callset
+- High-confidence consensus variants
+- Functional annotation tables
+- Mutation summary reports
+
+---
