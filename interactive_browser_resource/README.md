@@ -27,7 +27,7 @@ The browser resource includes:
 
 | File | Description |
 |------|-------------|
-| (Tutorial_for_T2T_WashU_browser_resource.pdf) | Step-by-step guide for accessing the browser, loading public data hubs, and visualizing the datasets presented in this study. |
+| 'Tutorial_for_T2T_WashU_browser_resource.pdf' | Step-by-step guide for accessing the browser, loading public data hubs, and visualizing the datasets presented in this study. |
 
 ---
 
