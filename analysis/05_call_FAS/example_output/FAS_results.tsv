@@ -1,0 +1,3 @@
+sample	asm	cell	chr	region_id	cdr_start	cdr_end	FAS	log2_FAS	FIRE_enrichment	background_FIRE	CDR_FIRE	CDR_covered_bp	n_active_bins	n_bg_bins	n_CDR_bins	bin_size	smooth_k	cdr_expansion	out_CDR_cutoff	in_CDR_cutoff
+PAN027Pat_NPC	PAN027Pat	NPC	chr9	chr9:45212770-47953550	45900000	46120000	229549.1953	17.8085	2.0201	0.0111	0.0224	225000	540	495	45	5000	10	0	0.1	0.05
+PAN027Pat_iPSC	PAN027Pat	iPSC	chr9	chr9:45212770-47953550	45900000	46120000	42599.6122	15.3786	1.1892	0.012	0.0143	225000	540	495	45	5000	10	0	0.1	0.05

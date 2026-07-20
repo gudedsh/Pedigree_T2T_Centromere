@@ -1,0 +1,25 @@
+=========== Call FAS from FIRE coverage ============
+Mon Jul 20 12:41:47 AM CDT 2026
+Fiber-seq manifest: example_data/fs_files.tsv
+Active-HOR/CDR annotation: example_data/activeHOR_CDR.tsv
+Output directory: /scratch/sdong/github/Pedigree_T2T_Centromere/analysis/05_call_FAS/example_output
+Bin size: 5000
+Smooth window: 10
+CDR expansion: 0
+Outside/inside CDR winsorization: 0.10/0.05
+Threads compatibility value (not used): 8
+[Mon Jul 20 12:41:47 AM CDT 2026] Extracting active-HOR coverage with tabix...
+  sample: PAN027Pat_iPSC
+  sample: PAN027Pat_NPC
+[Mon Jul 20 12:41:48 AM CDT 2026] Running FAS calculation in R...
+Warning message:
+In fwrite(stat_res, stat_out, sep = "\t") :
+  Input has no columns; creating an empty file at '/scratch/sdong/github/Pedigree_T2T_Centromere/analysis/05_call_FAS/example_output/FAS_QC_plots/FAS_cell_difference_stats.tsv' and exiting.
+null device 
+          1 
+Done.
+FAS result: /scratch/sdong/github/Pedigree_T2T_Centromere/analysis/05_call_FAS/example_output/FAS_results.tsv
+Bin summary: /scratch/sdong/github/Pedigree_T2T_Centromere/analysis/05_call_FAS/example_output/FAS_bin_summary.tsv
+Stats: /scratch/sdong/github/Pedigree_T2T_Centromere/analysis/05_call_FAS/example_output/FAS_QC_plots/FAS_cell_difference_stats.tsv
+QC plots: /scratch/sdong/github/Pedigree_T2T_Centromere/analysis/05_call_FAS/example_output/FAS_QC_plots
+[Mon Jul 20 12:41:51 AM CDT 2026] Finished successfully.
