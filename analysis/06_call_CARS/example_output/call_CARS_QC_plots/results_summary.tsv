@@ -1,0 +1,5 @@
+sample	measure	n	mean	sd	median	min	max
+PAN027Pat_NPC	log2_CARS	1	19.232		19.232	19.232	19.232
+PAN027Pat_iPSC	log2_CARS	1	18.757		18.757	18.757	18.757
+PAN027Pat_NPC	Fold_Enrichment	1	4		4	4	4
+PAN027Pat_iPSC	Fold_Enrichment	1	3.16		3.16	3.16	3.16

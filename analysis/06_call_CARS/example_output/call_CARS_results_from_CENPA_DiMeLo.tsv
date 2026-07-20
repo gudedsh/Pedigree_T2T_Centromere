@@ -1,0 +1,3 @@
+sample	chr	CARS	log2_CARS	Fold_Enrichment	bg_signal	cdr_signal	bg_signal_raw	cdr_signal_raw	n_active_bins	n_bg_bins_raw	n_cdr_bins_raw	bin_size	smooth_k	out_CDR_cutoff	in_CDR_cutoff	cdr_expansion
+PAN027Pat_NPC	chr9	615848.3	19.232	4	0.01	0.0402	0.0101	0.0403	531	488	41	5000	10	0.1	0.05	0
+PAN027Pat_iPSC	chr9	443084.8	18.757	3.16	0.0133	0.042	0.0137	0.0419	531	488	41	5000	10	0.1	0.05	0

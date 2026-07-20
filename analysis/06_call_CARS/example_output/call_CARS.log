@@ -1,0 +1,56 @@
+=========== Call CARS ============
+Mon Jul 20 01:57:45 AM CDT 2026
+BAM list: example_data/dml_files.tsv
+Active HOR BED: example_data/activeHOR_CDR.tsv
+Reference: example_data/PAN027Pat_chr9.fa.gz
+Reference used by BEDTools: /scratch/sdong/github/Pedigree_T2T_Centromere/analysis/06_call_CARS/example_output/intermediate_files/reference_cache/PAN027Pat_chr9.fa
+Output directory: /scratch/sdong/github/Pedigree_T2T_Centromere/analysis/06_call_CARS/example_output
+Bin size: 5000
+Threads: 8
+Memory: 50G
+Sort memory per thread: 3G
+
+[Mon Jul 20 01:57:45 AM CDT 2026] [step1] Preparing active HOR bins and reference counts...
+  Number of bins: 549
+  Mean A per bin: 1508.44
+  Mean T per bin: 1618.74
+  Mean A+T per bin: 3127.18
+  Mean CpG per bin: 68.10
+
+[Mon Jul 20 01:57:45 AM CDT 2026] [step2] Extract active HOR BAM: PAN027Pat_iPSC
+  cached active HOR BAM exists, skipping:
+    /scratch/sdong/github/Pedigree_T2T_Centromere/analysis/06_call_CARS/example_output/cached_activeHOR_bam/PAN027Pat_iPSC.activeHOR.bam
+
+[Mon Jul 20 01:57:45 AM CDT 2026] [step2] Extract active HOR BAM: PAN027Pat_NPC
+  cached active HOR BAM exists, skipping:
+    /scratch/sdong/github/Pedigree_T2T_Centromere/analysis/06_call_CARS/example_output/cached_activeHOR_bam/PAN027Pat_NPC.activeHOR.bam
+
+[Mon Jul 20 01:57:45 AM CDT 2026] [step3] Process sample: PAN027Pat_iPSC
+  counting m6A per read-bin...
+  counting mCG per read-bin...
+  counting MSP overlap bp per read-bin...
+  counting nucleosome overlap bp per read-bin...
+  read-bin output: /scratch/sdong/github/Pedigree_T2T_Centromere/analysis/06_call_CARS/example_output/intermediate_files/PAN027Pat_iPSC_Bin5kb.step9_read_bin_all_features.tsv
+  bin-level summary: /scratch/sdong/github/Pedigree_T2T_Centromere/analysis/06_call_CARS/example_output/intermediate_files/PAN027Pat_iPSC_Bin5kb.step10_FAS_bin_summary.tsv
+
+[Mon Jul 20 01:57:51 AM CDT 2026] [step3] Process sample: PAN027Pat_NPC
+  counting m6A per read-bin...
+  counting mCG per read-bin...
+  counting MSP overlap bp per read-bin...
+  counting nucleosome overlap bp per read-bin...
+  read-bin output: /scratch/sdong/github/Pedigree_T2T_Centromere/analysis/06_call_CARS/example_output/intermediate_files/PAN027Pat_NPC_Bin5kb.step9_read_bin_all_features.tsv
+  bin-level summary: /scratch/sdong/github/Pedigree_T2T_Centromere/analysis/06_call_CARS/example_output/intermediate_files/PAN027Pat_NPC_Bin5kb.step10_FAS_bin_summary.tsv
+
+Combined CARS input summary written to: /scratch/sdong/github/Pedigree_T2T_Centromere/analysis/06_call_CARS/example_output/CARS_MARS_bin_summary.tsv
+
+[Mon Jul 20 01:57:56 AM CDT 2026] [step5] Calling CARS in R...
+null device 
+          1 
+null device 
+          1 
+null device 
+          1 
+Done!
+CARS results written to: /scratch/sdong/github/Pedigree_T2T_Centromere/analysis/06_call_CARS/example_output/call_CARS_results_from_CENPA_DiMeLo.tsv
+All done.
+Mon Jul 20 01:57:59 AM CDT 2026
