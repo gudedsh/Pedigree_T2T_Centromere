@@ -1,0 +1,2 @@
+#sampleID	meth_column	depth_column	data_path
+PAN027Mat_PBMC_PB	4	6	./example_data/PAN027_Mat_chr9_activeHOR_meth.bed.gz
