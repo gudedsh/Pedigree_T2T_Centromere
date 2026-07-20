@@ -1,5 +1,7 @@
 # Pedigree T2T Centromere
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21459252.svg)](https://doi.org/10.5281/zenodo.21459252)
+
 Code, annotations, example datasets, and interactive resources accompanying our
 study of centromere epigenetic remodeling and genetic stability using
 haplotype-resolved, telomere-to-telomere (T2T) pedigree genome assemblies.
