@@ -33,6 +33,16 @@ bin_size <- as.integer(get_arg("--bin_size", "1000"))
 if (is.null(meth_file) || is.null(cen_file)) {
   stop("Usage: Rscript call_mars.r --meth combined.tsv --cen active_hor_cdr.bed --out MARS_results.tsv --plotdir plots")
 }
+if (!file.exists(meth_file)) stop("Methylation file not found: ", meth_file)
+if (!file.exists(cen_file)) stop("CEN annotation not found: ", cen_file)
+if (is.na(smooth_k) || smooth_k < 1) stop("--smooth_k must be a positive integer")
+if (is.na(bin_size) || bin_size < 1) stop("--bin_size must be a positive integer")
+if (!is.finite(out_CDR_cutoff) || out_CDR_cutoff < 0 || out_CDR_cutoff >= 0.5) {
+  stop("--out_CDR_cutoff must be in [0, 0.5)")
+}
+if (!is.finite(in_CDR_cutoff) || in_CDR_cutoff < 0 || in_CDR_cutoff >= 0.5) {
+  stop("--in_CDR_cutoff must be in [0, 0.5)")
+}
 
 dir.create(plotdir, recursive = TRUE, showWarnings = FALSE)
 
@@ -48,7 +58,6 @@ if (!all(required_cols %in% colnames(dt))) {
 dt[, meth := as.numeric(meth)]
 dt <- dt[is.finite(meth)]
 setorder(dt, chr, sample, start)
-dt
 message("Smoothing methylation with window k = ", smooth_k)
 
 if (smooth_k > 1) {
@@ -60,8 +69,10 @@ if (smooth_k > 1) {
 dt <- dt[is.finite(meth_smooth)]
 
 message("Reading CDR annotation: ", cen_file)
-cen <- fread(cen_file, header = FALSE)
-cen
+cen_lines <- readLines(cen_file, warn = FALSE)
+cen_lines <- cen_lines[!grepl("^[[:space:]]*(#|$)", cen_lines)]
+if (length(cen_lines) == 0) stop("CEN annotation contains no data intervals")
+cen <- fread(text = paste(cen_lines, collapse = "\n"), header = FALSE)
 if (ncol(cen) < 5) {
   stop("CEN file must have at least 5 columns: chr active_hor_start active_hor_end cdr_start cdr_end")
 }
@@ -256,6 +267,11 @@ plot_one_chr_facet_mars <- function(plot_dt, cen_row, mars_res_chr, outfile, out
   }
   
   delta_dt <- rbindlist(delta_list, fill = TRUE)
+
+  if (nrow(delta_dt) == 0) {
+    warning("Skipping faceted MARS QC plot because no sample has both background and CDR bins: ", cen_row$chr)
+    return(NULL)
+  }
   delta_dt[, sample := factor(sample, levels = sample_order)]
   
   label_dt <- mars_res_chr[, .(sample, label = paste0("log2(MARS) = ", round(log2_MARS, 3)))]
@@ -296,6 +312,7 @@ res_list <- list()
 
 for (i in seq_len(nrow(cen))) {
   cr <- cen[i]
+  result_start <- length(res_list) + 1L
   chr_dt <- dt[chr == cr$chr & start >= cr$active_start & end <= cr$active_end]
   if (nrow(chr_dt) == 0) {
     warning("No methylation bins found for ", cr$chr)
@@ -305,6 +322,10 @@ for (i in seq_len(nrow(cen))) {
   # Keep only bins detected in all samples for this active HOR
   nsamp <- uniqueN(chr_dt$sample)
   chr_dt_common <- chr_dt[, if (uniqueN(sample) == nsamp) .SD, by = .(chr, start, end)]
+  if (nrow(chr_dt_common) == 0) {
+    warning("No bins shared by all samples for ", cr$chr, ":", cr$active_start, "-", cr$active_end)
+    next
+  }
 
   for (sid in unique(chr_dt_common$sample)) {
     x <- chr_dt_common[sample == sid]
@@ -340,7 +361,8 @@ for (i in seq_len(nrow(cen))) {
   plot_file1 <- file.path(plotdir, paste0(cr$chr, "_MARS_QC1_all_samples.pdf"))
   plot_one_chr(chr_dt_common, cr, plot_file1)
 
-  mars_res_chr <- rbindlist(res_list, fill = TRUE)[chr == cr$chr]
+  current_result_indices <- seq.int(result_start, length(res_list))
+  mars_res_chr <- rbindlist(res_list[current_result_indices], fill = TRUE)
   plot_file2 <- file.path(plotdir, paste0(cr$chr, "_MARS_QC2_sample_facet.pdf"))
   
 plot_one_chr_facet_mars(
@@ -355,6 +377,10 @@ plot_one_chr_facet_mars(
 }
 
 res <- rbindlist(res_list, fill = TRUE)
+
+if (nrow(res) == 0) {
+  stop("No MARS results were produced; check chromosome names and active-HOR coordinates")
+}
 
 setcolorder(
   res,

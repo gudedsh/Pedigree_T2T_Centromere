@@ -1,0 +1,4 @@
+sample	chr	active_start	active_end	cdr_start	cdr_end	cdr_len	MARS	log2_MARS	mean_delta	methylation_difference	bg_methylation	cdr_methylation	bg_methylation_raw	cdr_methylation_raw	n_active_bins	n_bg_bins_raw	n_cdr_bins_raw	bin_size	smooth_k	out_CDR_cutoff	in_CDR_cutoff	common_sample_n	background	n_bg_bins_used	n_cdr_bins_used
+PAN027Pat_NPC	chr9	45212770	47953550	45900000	46120000	220000	2983.2	11.543	13.622	13.6218	87.1543	73.5326	87.1048	73.3853	2732	2511	219	1000	10	0.1	0.05	3	87.1543	2511	219
+PAN027Pat_PBMC	chr9	45212770	47953550	45900000	46120000	220000	3449.9	11.752	15.753	15.7531	91.1927	75.4396	91.124	75.3683	2732	2511	219	1000	10	0.1	0.05	3	91.1927	2511	219
+PAN027Pat_iPSC	chr9	45212770	47953550	45900000	46120000	220000	1172.3	10.195	5.353	5.3528	95.6044	90.2516	95.5604	90.2217	2732	2511	219	1000	10	0.1	0.05	3	95.6044	2511	219

@@ -1,0 +1,27 @@
+=========== Call MARS ============
+Mon Jul 20 12:10:01 AM CDT 2026
+Manifest: example_data/meth_files.tsv
+Annotation: example_data/activeHOR_CDR.tsv
+Output: /scratch/sdong/github/Pedigree_T2T_Centromere/analysis/04_call_MARS/example_output
+Bin size: 1000
+Minimum CpG/bin: 3
+Depth: 5-100
+Smooth window: 10
+CDR expansion: 0
+Outside/inside CDR winsorization: 0.10/0.05
+[2026-07-20 00:10:01] Validated 3 sample(s).
+[2026-07-20 00:10:01] Processing PAN027Pat_iPSC
+[2026-07-20 00:10:01] PAN027Pat_iPSC: mean of up to 1,000 randomly sampled methylation values = 95.0713
+[2026-07-20 00:10:01] Processing PAN027Pat_NPC
+[2026-07-20 00:10:01] PAN027Pat_NPC: mean of up to 1,000 randomly sampled methylation values = 85.5936
+[2026-07-20 00:10:01] Processing PAN027Pat_PBMC
+[2026-07-20 00:10:01] PAN027Pat_PBMC: mean of up to 1,000 randomly sampled methylation values = 90.3107
+[2026-07-20 00:10:01] Running MARS calculation.
+Reading methylation file: /scratch/sdong/github/Pedigree_T2T_Centromere/analysis/04_call_MARS/example_output/intermediate_files/combined_active_HOR.1000bp_methylation.tsv.gz
+Smoothing methylation with window k = 10
+Reading CDR annotation: /scratch/sdong/github/Pedigree_T2T_Centromere/analysis/04_call_MARS/example_output/intermediate_files/active_HOR_CDR.expanded_0bp.tsv
+Calculating MARS...
+Done.
+MARS result written to: /scratch/sdong/github/Pedigree_T2T_Centromere/analysis/04_call_MARS/example_output/MARS_results.tsv
+QC plots written to: /scratch/sdong/github/Pedigree_T2T_Centromere/analysis/04_call_MARS/example_output/MARS_QC_plots
+[2026-07-20 00:10:13] Finished successfully: /scratch/sdong/github/Pedigree_T2T_Centromere/analysis/04_call_MARS/example_output/MARS_results.tsv
