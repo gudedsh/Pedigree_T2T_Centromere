@@ -1,0 +1,12 @@
+=========== Extract nucleosome footprints and CpG methylation ============
+Mon Jul 20 02:25:03 AM CDT 2026
+Sample: PAN027Pat_NPC
+Assembly: PAN027Pat
+Cell: NPC
+BAM: example_data/PAN027Pat_chr9_activeHOR_NPC_aligned.bam
+Regions: example_data/activeHOR_CDR.tsv
+Reference: example_data/PAN027Pat_chr9.fa.gz
+Reference used by tools: /scratch/sdong/github/Pedigree_T2T_Centromere/analysis/08_extract_footprint_and_cpg_methylation/example_output/intermediate_files/reference_cache/PAN027Pat_chr9.fa
+Output: /scratch/sdong/github/Pedigree_T2T_Centromere/analysis/08_extract_footprint_and_cpg_methylation/example_output
+Threads: 8
+MAPQ: 1
